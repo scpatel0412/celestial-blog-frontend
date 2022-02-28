@@ -33,7 +33,7 @@ const ForgotPage = () => {
     const [error, seterror] = useState("")
     const classes1 = useStyles();
     useEffect(() => {
-        axios.get(`http://localhost:8000/api/allusers`)
+        axios.get(`https://celestial-blog-backend.herokuapp.com/api/allusers`)
         .then((res) => {
           console.log("data2==>",res.data)
           setData2(res.data)

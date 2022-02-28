@@ -55,21 +55,54 @@ useEffect(() => {
 const handleLogin = (event) => {
   event.preventDefault();
   // if(window.confirm(`Logging in ..........`)){
- axios.post(`https://celestial-blog-backend.herokuapp.com/api/signin-user`,data1)
+ axios.post(`https://celestial-blog-backend.herokuapp.com/api/signin-user`,data1,{
+   headers:{
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin":"true"
+    
+   }
+ })
  .then((res) => {
    if(res.data){
-    console.log(res.data)
+     hello = res.data
+    if(hello.message === "User authenticated"){
+      console.log(res.data)
     // setMessage(res.data)
-   hello = res.data
+   
     localStorage.setItem("bloguser id",hello.msg._id)
     localStorage.setItem("bloguser email",hello.msg.email)
     history(`/personal/${localStorage.getItem("bloguser id")}`)
+    }
+    else if(hello.msg.email != data1.email){
+      setMessage1("No such User exist")
+    }
+    else{
+      setMessage1("no data found")
+    }
  }
+ 
  else{
-   return setMessage1("No data Found")
+   alert("no data found")
  }
+ 
+
   
    
+ }).catch((error) => {
+
+    if(error.response){
+      console.log("error data",error.response.data)
+      var error1 = error.response.data.message
+      setMessage1(error1)
+    }
+    else if(error.request){
+      console.log("error request",error.request)
+      setMessage1("Holy crap !!!! server crashed....")
+    }
+    else{
+      alert("Email doesnt exists or internal server error")
+    }
+    
  })
  
   // }

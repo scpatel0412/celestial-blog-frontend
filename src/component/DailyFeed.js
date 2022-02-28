@@ -103,11 +103,17 @@ const DailyFeed = () => {
       else{
           if(window.confirm("Adding Daily feed..........")){
               axios.post("https://celestial-blog-backend.herokuapp.com/api/dailyfeed",data1)
-              axios.get(`https://celestial-blog-backend.herokuapp.com/api/dailyfeed`)
-            .then((res) => {
+              setTimeout(() => {
+                axios.get(`https://celestial-blog-backend.herokuapp.com/api/dailyfeed`)
+          .then((res) => {
               console.log("daily feed",res.data);
               setData2(res.data)
           })
+          .catch((err) => {
+            console.log(err.error)
+          })
+                
+              }, 2000);
           }
       }
     }
@@ -115,11 +121,17 @@ const DailyFeed = () => {
         if(window.confirm("Updating Daily feed..........")){
             axios.put(`http://localhost:8000/api/dailyfeed/${localStorage.getItem("update id")}`,data1)
             setUpdateToggle(true)
-            axios.get(`https://celestial-blog-backend.herokuapp.com/api/dailyfeed`)
-            .then((res) => {
-              console.log("daily feed",res.data);
-              setData2(res.data)
-          })
+            setTimeout(() => {
+              axios.get(`https://celestial-blog-backend.herokuapp.com/api/dailyfeed`)
+        .then((res) => {
+            console.log("daily feed",res.data);
+            setData2(res.data)
+        })
+        .catch((err) => {
+          console.log(err.error)
+        })
+              
+            }, 2000);
         }
     }  
     }
@@ -133,11 +145,17 @@ const DailyFeed = () => {
      const onHandleDailyFeedDelete = (id) => {
          if(window.confirm('Are you sure want to delete this daily feed.....')){
             axios.delete(`https://celestial-blog-backend.herokuapp.com/api/dailyfeed/${id}`)
-            axios.get(`https://celestial-blog-backend.herokuapp.com/api/dailyfeed`)
-            .then((res) => {
-              console.log("daily feed",res.data);
-              setData2(res.data)
-          })  
+            setTimeout(() => {
+              axios.get(`https://celestial-blog-backend.herokuapp.com/api/dailyfeed`)
+        .then((res) => {
+            console.log("daily feed",res.data);
+            setData2(res.data)
+        })
+        .catch((err) => {
+          console.log(err.error)
+        })
+              
+            }, 2000); 
          }
      }
      const showForm = () => {

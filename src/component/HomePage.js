@@ -22,7 +22,6 @@ import ArrowForwardIosIcon from "@material-ui/icons/ArrowForwardIos";
 import "./Carousel.css";
 import Grid from '@mui/material/Grid'
 import "./Home.css"
-// import IconButton from '@mui/material/IconButton';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 //https://coderrocketfuel.com/article/how-to-add-disqus-to-a-react-application
@@ -97,6 +96,7 @@ const HomePage = () => {
     setAnchorElUser(null);
   };
   const onDarkMode = () => {
+    
     if(toggleButton === false){
       localStorage.setItem("darkmode","dark")
       setToggleButton(true)
@@ -110,7 +110,7 @@ const HomePage = () => {
    
     return (
     <div style ={localStorage.getItem("darkmode") ==="dark" ? {background:"#222121",color:"white"}:null}>
-       <AppBar position="static" style={{backgroundImage:"url(https://unsplash.com/photos/Jztmx9yqjBw/download?ixid=MnwxMjA3fDB8MXxhbGx8fHx8fHx8fHwxNjQ0NTU5OTA0&force=true)",backgroundSize: 'cover'}}>
+    <AppBar position="static" style={{backgroundImage:"url(https://unsplash.com/photos/Jztmx9yqjBw/download?ixid=MnwxMjA3fDB8MXxhbGx8fHx8fHx8fHwxNjQ0NTU5OTA0&force=true)",backgroundSize: 'cover'}}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           <Typography
