@@ -77,8 +77,23 @@ const history = useNavigate()
            }
             
              
-           }).catch((err) => {
-              setMessage1("User already exists or internal server error")
+           }).catch((error) => {
+            
+
+              if(error.response){
+                console.log("error data",error.response.data)
+                var error1 = error.response.data.error.errors.email.message
+                setMessage1(error1)
+              }
+              else if(error.request){
+                console.log("error request",error.request)
+                setMessage1("Holy crap !!!! server crashed....")
+              }
+              else{
+                alert("Email doesnt exists or internal server error")
+              }
+              
+           
            })
          
              
