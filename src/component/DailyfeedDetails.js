@@ -20,9 +20,9 @@ import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import { makeStyles } from "@material-ui/core/styles";
 import TextField from '@mui/material/TextField';
+import { showSingleFeed } from '../redux/action';
 import { useSelector,useDispatch } from 'react-redux';
-import { getSingleData,showComment,postComment } from '../redux/action';
-import {FacebookIcon,FacebookShareButton,WhatsappIcon,WhatsappShareButton,TelegramShareButton, TelegramIcon} from "react-share"
+import {FacebookIcon,FacebookShareButton,WhatsappIcon,WhatsappShareButton,PinterestShareButton,PinterestIcon, TelegramShareButton, TelegramIcon} from "react-share"
 
 const pages = [
   {
@@ -50,22 +50,21 @@ const pages = [
 
 
 
-const BlogDetails = () => {
+const DailyfeedDetails = () => {
   const history = useNavigate()
   const hello = useParams()
-  const dispatch =  useDispatch()
+  const dispatch = useDispatch()
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);
-  const [Data2, setData2] = useState([])
-  const [comment2, setComment2] = useState("")
   const classes1 = useStyles();
   
   useEffect(() => {
-         dispatch(getSingleData(hello.id))
-         dispatch(showComment()) 
+    dispatch(showSingleFeed(hello.id)) 
   }, [])
   
-   const {data,comment1} = useSelector(state =>  state.info)
+  const {dailyfeed1} = useSelector(state =>  state.info)
+  console.log("dailyfeed1", dailyfeed1)
+
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
   };
@@ -89,19 +88,7 @@ const BlogDetails = () => {
   const onHandleDailyFeed = () => {
     history(`/personal/${localStorage.getItem("bloguser id")}/dailyfeed`)
   }
-  const handleComments = (e) => {
-    e.preventDefault()
-    if(window.confirm("Adding your comment .....")){
-      var c = {email:localStorage.getItem("bloguser email"),set_id:hello.id,comment:comment2}
-      dispatch(postComment(c))
-      
-      setTimeout(() => {
-        dispatch(showComment())
-      }, 2000);
-      
-    }
-    setComment2("")
-  }
+ 
  
 
 
@@ -214,21 +201,24 @@ const BlogDetails = () => {
       </Container>
     </AppBar> 
     <Container style={{padding:"20px"}}>
-        <Button onClick={() => history("/blog")} style={{margin:"20px"}}>Go Back</Button>
+        <Button onClick={() => history("/")} style={{margin:"20px"}}>Go Back</Button>
         <Grid xs={12}>
       <Card style={localStorage.getItem("darkmode") === "dark"? {background:"#525252" ,color:"white"}: {background:"#F3F3F3"}}>
       <CardMedia
         component="img"
        
-        image={data.image && data.image}
+        image={dailyfeed1.imageLink && dailyfeed1.imageLink}
         alt="green iguana"
       />
       <CardContent>
         <Typography gutterBottom variant="h5" component="div">
-          {data.star_name&& data.star_name}
+          {dailyfeed1.star_name&& dailyfeed1.star_name}
         </Typography>
         <Typography variant="body2">
-          {data.description && data.description} ...
+          {dailyfeed1.description && dailyfeed1.description} ...
+        </Typography>
+        <Typography variant="h4">
+         Posted by: {dailyfeed1.userEmail}
         </Typography>
         
       </CardContent>
@@ -247,7 +237,7 @@ const BlogDetails = () => {
      
     </Card>
     </Grid>
-    <div style={{marginTop:"20px"}}>
+    {/* <div style={{marginTop:"20px"}}>
             <h1>Add Comments</h1>
             <form onSubmit={handleComments}>
             <TextField
@@ -262,8 +252,8 @@ const BlogDetails = () => {
             InputLabelProps={localStorage.getItem("darkmode") ==="dark" ?{ className: classes1.textField1 }:null}
               
                 
-                 value={comment2}
-                onChange= {(e) => {setComment2(e.target.value)}}
+                 value={comment1}
+                onChange= {(e) => {setComment1(e.target.value)}}
               />
               <Button
                 type="submit"
@@ -278,11 +268,11 @@ const BlogDetails = () => {
             </form>
             <div>
               {
-                comment1?.filter((i) => {return i.set_id == hello.id}).map((i) => {
+                Data2.filter((i) => {return i.set_id == hello.id}).map((i) => {
                   var date = new Date(i.createdAt);
                   var realDate = date.getFullYear()+'-' + (date.getMonth()+1) + '-'+date.getDate();
                   return(
-                    <div key={i._id} style={{margin:" 4px" ,height:"150px",border:"2px gray solid" , borderRadius:"10px"}}> <p style={{textAlign:"right"}}>{realDate}</p>   
+                    <div style={{margin:" 4px" ,height:"150px",border:"2px gray solid" , borderRadius:"10px"}}> <p style={{textAlign:"right"}}>{realDate}</p>   
                     <p style={{opacity:"0.7"}}> {i.email} posted :
                        </p>
                        <p style={{fontSize:"20px"}}>{i.comment}</p> 
@@ -293,11 +283,11 @@ const BlogDetails = () => {
                 })
               }
             </div>
-    </div>
+    </div> */}
     </Container>
 
     </div>
   )
 }
 
-export default BlogDetails
+export default DailyfeedDetails

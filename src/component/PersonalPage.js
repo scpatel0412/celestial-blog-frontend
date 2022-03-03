@@ -21,8 +21,8 @@ import CardMedia from '@mui/material/CardMedia';
 import TextField from '@mui/material/TextField';
 import { useParams } from 'react-router-dom';
 import { makeStyles } from "@material-ui/core/styles";
-
-
+import { useSelector,useDispatch } from 'react-redux';
+import { getData,postData,updateData,deleteData,getSingleUsers,updateUser,deleteUser } from '../redux/action';
 
 const pages = [
     {
@@ -53,10 +53,9 @@ const pages = [
 
 const PersonalPage = () => {
     const history = useNavigate()
+    const dispatch =  useDispatch()
     const [anchorElNav, setAnchorElNav] = useState(null);
     const [anchorElUser, setAnchorElUser] = useState(null);
-    const [data3, setData3] = useState({})
-    const [data2, setData2] = useState([])
     const [formToggle1,setFormToggle1] = useState(true)
     const [data1,setData1] = useState({email:"",password:""})
     const [data4,setData4] = useState({star_name:"",description:"",setId:localStorage.getItem("bloguser id"),image:""})
@@ -67,25 +66,16 @@ const PersonalPage = () => {
     const [error1,setError1] = useState("")
     const classes1 = useStyles();
 
-
     const hello = useParams()
 
-    console.log("hello",hello)
-
     useEffect(() => {
-      axios.get(`https://celestial-blog-backend.herokuapp.com/api/allusers/${localStorage.getItem("bloguser id")}`)
-      .then((res) => {
-          console.log("bloguser",res.data.msg);
-          setData3(res.data.msg)
-      })
-      axios.get(`https://celestial-blog-backend.herokuapp.com/api/blogdata`)
-           .then((res) => {
-             console.log("data2==>",res.data)
-             setData2(res.data)
-           })
+      dispatch(getSingleUsers(hello.id))
+      
+           dispatch(getData())
     }, [])
     
-  
+    const {datas,user} = useSelector(state => state.info)
+    
     const handleOpenNavMenu = (event) => {
       setAnchorElNav(event.currentTarget);
     };
@@ -107,13 +97,13 @@ const PersonalPage = () => {
       history('/')
     }
     const onHandleDailyFeed = () => {
-      history(`/personal/${localStorage.getItem("bloguser id")}/dailyfeed`)
+      history(`/personal/${hello.id}/dailyfeed`)
     }
     const onUserUpdate = (e) => {
       e.preventDefault();
       if(formToggle === false){
         setFormToggle(true)
-        setData1({email:data3.email,password:""})
+        setData1({email:user.msg.email,password:""})
       }
       else{
         setFormToggle(false)
@@ -123,12 +113,12 @@ const PersonalPage = () => {
     }
     const onHandleUserUpdate = (e) => {
       e.preventDefault();
-      if(data1.email === data3.email && data1.password ===data3.password){
+      if(data1.email === user.email && data1.password ===user.password){
         setError("Please Change your Information")
       }
       else{
       if(window.confirm("Are you sure you want to update your profile after updating profile you will be logout......")){
-        axios.put(`https://celestial-blog-backend.herokuapp.com/api/allusers/${localStorage.getItem("bloguser id")}`,{email:data1.email,password:data1.password})
+        dispatch(updateUser(hello.id,data1))
         localStorage.clear();
         history(`/`)
       }
@@ -136,7 +126,7 @@ const PersonalPage = () => {
     }
     const onHandleUserDelete = () => {
       if(window.confirm("Are you sure you want to delete your profile after deleting it you will not able to recover your data......")){
-        axios.delete(`https://celestial-blog-backend.herokuapp.com/api/allusers/${localStorage.getItem("bloguser id")}`)
+       dispatch(deleteUser(hello.id))
         localStorage.clear();
         history(`/`)
       }
@@ -150,37 +140,33 @@ const PersonalPage = () => {
       }
       else{
         if(window.confirm("Adding Blog......")){
-          axios.post(`https://celestial-blog-backend.herokuapp.com/api/blogdata`,data4)
-          setData4({star_name:"",description:"",setId:localStorage.getItem("bloguser id"),image:""})
-          //window.location.reload()
+          console.log("data4",data4)
+          dispatch(postData(data4))
+         
+          
           setTimeout(() => {
-            axios.get(`https://celestial-blog-backend.herokuapp.com/api/blogdata`)
-            .then((res) => {
-              console.log("data2==>",res.data)
-              setData2(res.data)
-            })
+            dispatch(getData())
           }, 2000);
         }
       }
     }
     else{
       if(window.confirm("Updating Blog ..........")){
-        axios.put(`https://celestial-blog-backend.herokuapp.com/api/blogdata/${localStorage.getItem("blogdata id")}`,data4)
-        setData4({star_name:"",description:"",setId:localStorage.getItem("bloguser id"),image:""})
-        //window.location.reload()
+        dispatch(updateData(localStorage.getItem("blogdata id"),data4))
+         setData4({star_name:"",description:"",setId:localStorage.getItem("bloguser id"),image:""})
         setTimeout(() => {
-          axios.get(`https://celestial-blog-backend.herokuapp.com/api/blogdata`)
-          .then((res) => {
-            console.log("data2==>",res.data)
-            setData2(res.data)
-          })
+          dispatch(getData())
         }, 2000);
       }
+      setFormToggle2(false)
+      setFormToggle3(true)
     }
 
     }
     const onHandleBlogUpdate = (id) => {
-      let find1 = data2.find((i) => {return i._id == id})
+      setFormToggle2(true)
+      setFormToggle3(false)
+      let find1 = datas.find((i) => {return i._id == id})
       setData4({star_name:find1.star_name,description:find1.description,setId:find1.setId,image:find1.image})
       setFormToggle1(false)
       localStorage.setItem("blogdata id",id)
@@ -188,13 +174,10 @@ const PersonalPage = () => {
     }
     const onHandleBlogDelete = (id) => {
       if(window.confirm("Deleting Blog ......")){
-        axios.delete(`https://celestial-blog-backend.herokuapp.com/api/blogdata/${id}`)
+        dispatch(deleteData(id))
+        
         setTimeout(() => {
-          axios.get(`https://celestial-blog-backend.herokuapp.com/api/blogdata`)
-          .then((res) => {
-            console.log("data2==>",res.data)
-            setData2(res.data)
-          })
+          dispatch(getData())
         }, 2000);
       }
     }
@@ -214,7 +197,7 @@ const PersonalPage = () => {
         setFormToggle3(false)
       }
     }
-    const blog_data = data2.filter((i) => {return i.setId == localStorage.getItem("bloguser id")})
+    const blog_data = datas?.filter((i) => {return i.setId == localStorage.getItem("bloguser id")})
   return (
     <div  style ={localStorage.getItem("darkmode") ==="dark" ? {minHeight:"100vh",background:"#222121",color:"white"}:null}>
         <AppBar position="static" style={{backgroundSize: 'cover',paddingBottom:"20px",paddingTop:"20px",backgroundImage:"url(https://unsplash.com/photos/Jztmx9yqjBw/download?ixid=MnwxMjA3fDB8MXxhbGx8fHx8fHx8fHwxNjQ0NTU5OTA0&force=true)"}}>

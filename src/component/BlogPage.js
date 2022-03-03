@@ -20,6 +20,8 @@ import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import { TextField } from '@mui/material';
 import { makeStyles } from "@material-ui/core/styles";
+import { useSelector,useDispatch } from 'react-redux';
+import { getData,showLike,postLike,showComment } from '../redux/action';
 
 
 const pages = [
@@ -51,37 +53,20 @@ const pages = [
 
 const BlogPage = () => {
   const history = useNavigate()
+  const dispatch = useDispatch()
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);
-  const [Data1, setData1] = useState([])
-  const [Data2, setData2] = useState([])
   const [search,setSearch] = useState("")
-  const [likesData, setLikesData] = useState({email:"",set_id:""})
-  const [likesData1, setLikesData1] = useState([])
+  const [length1,setLength1] = useState(0)
   const classes1 = useStyles();
-
-
   
-
   useEffect(() => {
-    axios.get("https://celestial-blog-backend.herokuapp.com/api/blogdata")
-         .then((res) => {
-           console.log(res.data)
-           setData1(res.data)
-         })
-         axios.get(`https://celestial-blog-backend.herokuapp.com/api/likes`)
-         .then((res) => {
-           console.log("Likes",res.data);
-           setLikesData1(res.data)
-         })
-         axios.get(`https://celestial-blog-backend.herokuapp.com/api/comments`)
-          .then((res) => {
-            console.log(res.data)
-            setData2(res.data)
-          } )
+         dispatch(getData())
+         dispatch(showLike())
+         dispatch(showComment())
   }, [])
   
-
+  const {datas,like1,comment1} = useSelector(state =>  state.info)
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
   };
@@ -111,9 +96,11 @@ const BlogPage = () => {
     if(id){
       var a = localStorage.getItem("bloguser email")
     var b =id
-   
-    
-    axios.post(`https://celestial-blog-backend.herokuapp.com/api/likes`,{email:a,set_id:b})
+    var c = {email:a,set_id:b}
+    dispatch(postLike(c))
+    setTimeout(() => {
+      dispatch(showLike())
+    }, 1000);
     }
     else{
       return false;
@@ -124,7 +111,18 @@ const BlogPage = () => {
   }
  
 
-
+var data1 = datas.filter((e) => {
+  if(search === ""){
+    return e
+  }
+  else if(e.star_name.toLowerCase().includes(search.toLowerCase())){
+    return e
+  }
+  else if(e.star_name.toUpperCase().includes(search.toUpperCase())){
+    return e
+  }
+  
+})
 
   return (
     <div style ={localStorage.getItem("darkmode") ==="dark" ? {background:"#222121",color:"white",minHeight:"100vh"}:null}>
@@ -244,23 +242,12 @@ const BlogPage = () => {
     value={search}
     onChange={(e) => {setSearch(e.target.value)}}
     />
-    <p>Total number of post : {Data1.length}</p>
+    <p>{search ? "Search results":"Total number of post"} : {data1.length}</p>
     </div> 
     <Grid container style={{padding:"20px"}} spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12 }}>
-  {Data1.filter((e) => {
-    if(search === ""){
-      return e
-    }
-    else if(e.star_name.toLowerCase().includes(search.toLowerCase())){
-      return e
-    }
-    else if(e.star_name.toUpperCase().includes(search.toUpperCase())){
-      return e
-    }
+  {data1.map((i) => {
+    var a = like1.filter((k) => {return k.set_id === i._id && k.email === localStorage.getItem("bloguser email")})
     
-  }).map((i) => {
-    var a = likesData1.filter((k) => {return k.set_id === i._id && k.email === localStorage.getItem("bloguser email")})
-    console.log("a====>",a);
     return(
   
         
@@ -286,8 +273,8 @@ const BlogPage = () => {
         { a.length === 0 ?
           <Button size="small" style={{background:"#0E1F4B",color:"white"}} onClick={() => onLikes(i._id)}><i class="fa-solid fa-heart"></i> &nbsp; Like</Button>
         : <Button size="small" style={{background:"#0E1F4B",color:"white"}}><i class="fa-solid fa-thumbs-down"></i> &nbsp;  DisLike</Button>}
-        <p style={{marginLeft:"20px"}}><i class="fa-solid fa-heart"></i> {likesData1?.filter((k) => {return k.set_id == i._id}).length}</p>
-        <p ><i class="fa-solid fa-comments"></i> {Data2?.filter((k) => {return k.set_id == i._id}).length}</p>
+        <p style={{marginLeft:"20px"}}><i class="fa-solid fa-heart"></i> {like1?.filter((k) => {return k.set_id == i._id}).length}</p>
+        <p ><i class="fa-solid fa-comments"></i> {comment1?.filter((k) => {return k.set_id == i._id}).length}</p>
       </CardActions>
     </Card>
     

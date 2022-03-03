@@ -3,7 +3,8 @@ import { Link,useNavigate } from 'react-router-dom'
 import { Button, Container,Grid,TextField } from '@mui/material'
 import axios from 'axios'
 import { makeStyles } from "@material-ui/core/styles";
-
+import { useDispatch,useSelector } from 'react-redux';
+import {getUsers,updateUser} from '../redux/action'
 
 const useStyles = makeStyles({
   input: {
@@ -25,23 +26,21 @@ const useStyles = makeStyles({
 
 const ForgotPage = () => {
     const history = useNavigate()
+    const dispatch = useDispatch()
     const [data1, setData1] = useState({email:"",password:""})
-    const [data2, setData2] = useState([])
+    
     const [formToggle, setFormToggle] = useState(false)
     const [message, setmessage] = useState("")
     const [cpass, setCpass] = useState("")
     const [error, seterror] = useState("")
     const classes1 = useStyles();
     useEffect(() => {
-        axios.get(`https://celestial-blog-backend.herokuapp.com/api/allusers`)
-        .then((res) => {
-          console.log("data2==>",res.data)
-          setData2(res.data)
-        })
+        dispatch(getUsers())
     }, [])
+    const {users} = useSelector(state =>  state.info)
     const onHandleEmail = (e) => {
         e.preventDefault();
-        let find1 = data2.find((i) => {return i.email == data1.email})
+        let find1 = users.find((i) => {return i.email == data1.email})
         if(find1){
             setFormToggle(true)
             setmessage("yup we found your account")
@@ -63,7 +62,8 @@ const ForgotPage = () => {
         }
         else{
             if(window.confirm("Updating password! ......")){
-                axios.put(`https://celestial-blog-backend.herokuapp.com/api/allusers/${localStorage.getItem("update1 id")}`,data1)
+              dispatch(updateUser(localStorage.get("update1 id"),data1))
+               
                 localStorage.clear();
                 history("/login")
             }
@@ -74,6 +74,7 @@ const ForgotPage = () => {
     <div style ={localStorage.getItem("darkmode") ==="dark" ? {height:"100vh",background:"#222121",color:"white"}:null}>
         <Container>
             <Grid xs={8}>
+                <Link to ="/" style={localStorage.getItem("darkmode") ==="dark" ? {color:"white",textDecoration:"none"}:null}>Back to Home</Link>
                 <h3>If you dont remember your email you need to sign up and create a new account <Link to="/signup">Sign Up</Link> </h3>
                 <p>Please enter your email</p>
                 <p style={{color:"red"}}>{message}</p>

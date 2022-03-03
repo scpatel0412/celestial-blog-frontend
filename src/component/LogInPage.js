@@ -3,19 +3,18 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import {Link as A} from '@mui/material';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Container } from '@mui/material';
 import {Link,useNavigate} from 'react-router-dom'
 import axios from 'axios';
 import "./Form.css";
+import { postUsersLogIn } from '../redux/action';
+import { useSelector,useDispatch } from 'react-redux';
 import { makeStyles } from "@material-ui/core/styles";
 
 
@@ -37,78 +36,37 @@ const useStyles = makeStyles({
 });
 
 
-// const theme = createTheme();
+
 function LogInPage() {
 
 const [data1, setData1] = useState({email:"",password:""})
 const [data2,setData2] = useState([])
-const [message,setMessage] = useState({})
-const [error, seterror] = useState("")
+const [message,setMessage] = useState("")
+
 const [message1, setMessage1] = useState("")
 const classes1 = useStyles();
 const history = useNavigate()
-var hello = {};
-useEffect(() => {
-  
-}, [])
+const dispatch =useDispatch()
+const {resploginuser,errors} = useSelector(state =>  state.info)
+console.log("res ==>",resploginuser)
+console.log("res err ===>",errors)
 
+var err = errors
+console.log("err",err)
 const handleLogin = (event) => {
   event.preventDefault();
-  // if(window.confirm(`Logging in ..........`)){
- axios.post(`https://celestial-blog-backend.herokuapp.com/api/signin-user`,data1,{
-   headers:{
-    "Content-Type": "application/json",
-    "Access-Control-Allow-Origin":"true"
-    
-   }
- })
- .then((res) => {
-   if(res.data){
-     hello = res.data
-    if(hello.message === "User authenticated"){
-      console.log(res.data)
-    // setMessage(res.data)
-   
-    localStorage.setItem("bloguser id",hello.msg._id)
-    localStorage.setItem("bloguser email",hello.msg.email)
-    history(`/personal/${localStorage.getItem("bloguser id")}`)
-    }
-    else if(hello.msg.email != data1.email){
-      setMessage1("No such User exist")
-    }
-    else{
-      setMessage1("no data found")
-    }
- }
- 
- else{
-   alert("no data found")
- }
- 
-
-  
-   
- }).catch((error) => {
-
-    if(error.response){
-      console.log("error data",error.response.data)
-      var error1 = error.response.data.message
-      setMessage1(error1)
-    }
-    else if(error.request){
-      console.log("error request",error.request)
-      setMessage1("Holy crap !!!! server crashed....")
-    }
-    else{
-      alert("Email doesnt exists or internal server error")
-    }
-    
- })
- 
+  dispatch(postUsersLogIn(data1))
+  // var loginsuccess = resploginuser.message;
+  // var userid = resploginuser.msg._id;
+  // var username = resploginuser.msg.email;
+  // if(loginsuccess === "User authenticated"){
+  //   localStorage.setItem("bloguser email",username)
+  //   localStorage.setItem("bloguser id",userid)
+  //   history(`/personal/${userid}`)
+  // }else{
+  //   setMessage("every body is chilling baby")
   // }
-  console.log("message =====>",message)
- 
- 
+
 }
 
 
@@ -150,10 +108,7 @@ const handleLogin = (event) => {
             <Typography component="h1" variant="h5">
               Log In
             </Typography>
-            <Typography component="h3" variant="h5" style={{color:"red"}}>
-              {error}
-            </Typography>
-            <p>{message1}</p>
+            <p style={{color:"red"}}>{err !== "" ? err :null}</p>
             <Box style={{color:"white"}} component="form" noValidate onSubmit={handleLogin} sx={{ mt: 1 }}>
               <div >
               <TextField
@@ -190,10 +145,7 @@ const handleLogin = (event) => {
                 onChange= {(e) => {setData1({...data1,password:e.target.value})}}
               />
               </div>
-              {/* <FormControlLabel
-                control={<Checkbox value="remember" color="primary" />}
-                label="Remember me"
-              /> */}
+            
               <Button
                 type="submit"
                 fullWidth

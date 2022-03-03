@@ -20,8 +20,8 @@ import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import TextField from '@mui/material/TextField';
 import { makeStyles } from "@material-ui/core/styles";
-import {FacebookIcon,FacebookShareButton,WhatsappIcon,WhatsappShareButton,PinterestShareButton,PinterestIcon, TelegramShareButton, TelegramIcon} from "react-share"
-
+import { useSelector,useDispatch } from 'react-redux';
+import { showFeed,addFeed,updateFeed,deleteFeed } from '../redux/action';
 
 const pages = [
     {
@@ -51,6 +51,7 @@ const pages = [
 const DailyFeed = () => {
 
     const history = useNavigate()
+    const dispatch =  useDispatch()
     const [anchorElNav, setAnchorElNav] = useState(null);
     const [anchorElUser, setAnchorElUser] = useState(null);
     const [data1,setData1] = useState({star_name:"",description:"",imageLink:"",set_id:localStorage.getItem("bloguser id"),userEmail:localStorage.getItem("bloguser email")})
@@ -63,16 +64,11 @@ const DailyFeed = () => {
     const [showDataToggle,setShowDataToggle] = useState(false)
 
    useEffect(() => {
-     axios.get(`https://celestial-blog-backend.herokuapp.com/api/dailyfeed`)
-          .then((res) => {
-              console.log("daily feed",res.data);
-              setData2(res.data)
-          })
-          .catch((err) => {
-            console.log(err.error)
-          })
+     dispatch(showFeed())
      
    }, [])
+   const {dailyfeeds1} = useSelector(state =>  state.info)
+
 
     const handleOpenNavMenu = (event) => {
       setAnchorElNav(event.currentTarget);
@@ -102,16 +98,10 @@ const DailyFeed = () => {
       }
       else{
           if(window.confirm("Adding Daily feed..........")){
-              axios.post("https://celestial-blog-backend.herokuapp.com/api/dailyfeed",data1)
+            dispatch(addFeed(data1))
+              
               setTimeout(() => {
-                axios.get(`https://celestial-blog-backend.herokuapp.com/api/dailyfeed`)
-          .then((res) => {
-              console.log("daily feed",res.data);
-              setData2(res.data)
-          })
-          .catch((err) => {
-            console.log(err.error)
-          })
+                dispatch(showFeed())
                 
               }, 2000);
           }
@@ -119,41 +109,32 @@ const DailyFeed = () => {
     }
     else{
         if(window.confirm("Updating Daily feed..........")){
-            axios.put(`http://localhost:8000/api/dailyfeed/${localStorage.getItem("update id")}`,data1)
+          dispatch(updateFeed(localStorage.getItem("update id"),data1))
+           
             setUpdateToggle(true)
             setTimeout(() => {
-              axios.get(`https://celestial-blog-backend.herokuapp.com/api/dailyfeed`)
-        .then((res) => {
-            console.log("daily feed",res.data);
-            setData2(res.data)
-        })
-        .catch((err) => {
-          console.log(err.error)
-        })
-              
+              dispatch(showFeed())    
             }, 2000);
         }
+        setShowFormToggle(false)
+      setShowDataToggle(true)
     }  
     }
     
     const onHandleDailyFeedUpdate1 = (id) => {
-        let find1 = data2.find((i) => {return i._id == id})
+      setShowFormToggle(true)
+      setShowDataToggle(false)
+        let find1 = dailyfeeds1.find((i) => {return i._id == id})
         localStorage.setItem("update id",id)
         setData1({star_name:find1.star_name,description:find1.description,imageLink:find1.imageLink,set_id:localStorage.getItem("bloguser id"),userEmail:localStorage.getItem("bloguser email")})
         setUpdateToggle(false)
     }
      const onHandleDailyFeedDelete = (id) => {
          if(window.confirm('Are you sure want to delete this daily feed.....')){
-            axios.delete(`https://celestial-blog-backend.herokuapp.com/api/dailyfeed/${id}`)
+           dispatch(deleteFeed(id))
+            
             setTimeout(() => {
-              axios.get(`https://celestial-blog-backend.herokuapp.com/api/dailyfeed`)
-        .then((res) => {
-            console.log("daily feed",res.data);
-            setData2(res.data)
-        })
-        .catch((err) => {
-          console.log(err.error)
-        })
+             dispatch(showFeed())
               
             }, 2000); 
          }
@@ -177,10 +158,10 @@ const DailyFeed = () => {
     const goBack = () => {
         history(`/personal/${localStorage.getItem("bloguser id")}`)
     }
-    let dailyfeed2 = data2.filter((i) => {return i.set_id == localStorage.getItem("bloguser id")})
+    let dailyfeed2 = dailyfeeds1?.filter((i) => {return i.set_id == localStorage.getItem("bloguser id")})
   return (
     <div style ={localStorage.getItem("darkmode") ==="dark" ? {background:"#222121",color:"white",minHeight:"100vh"}:null}>
-        <AppBar position="static" style={{backgroundSize: 'cover', paddingBottom:"20px",paddingTop:"20px",backgroundImage:"url(https://unsplash.com/photos/Jztmx9yqjBw/download?ixid=MnwxMjA3fDB8MXxhbGx8fHx8fHx8fHwxNjQ0NTU5OTA0&force=true)"}}>
+    <AppBar position="static" style={{backgroundSize: 'cover', paddingBottom:"20px",paddingTop:"20px",backgroundImage:"url(https://unsplash.com/photos/Jztmx9yqjBw/download?ixid=MnwxMjA3fDB8MXxhbGx8fHx8fHx8fHwxNjQ0NTU5OTA0&force=true)"}}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           <Typography
@@ -290,7 +271,7 @@ const DailyFeed = () => {
     <Container>
     <Grid container>
        <Grid xs={12}>
-           {/* <Button style={{background:"#4189B9", color:"white"}}>Add Blog</Button> */}
+          
            <Button style={{color:"white",background:"#4D1D84", marginTop:"20px"}} onClick ={() => goBack()}>&#8592; Go back</Button>
        <Typography component="h1" variant="h3" style={{marginTop:"20px"}}>
               Welcome to DailyFeed
@@ -321,10 +302,8 @@ const DailyFeed = () => {
                InputLabelProps={localStorage.getItem("darkmode") ==="dark" ?{ className: classes1.textField1 }:null}
                 margin="normal"
                 fullWidth
-                // name="description"
                 label="Description"
                 type="text"
-                // id="description"
                 multiline
                 rows={7}
                 maxRows={10}
@@ -355,7 +334,7 @@ const DailyFeed = () => {
             </form>
             </Grid>
             :null}         
-      { showDataToggle === true ? ( dailyfeed2 && dailyfeed2.map((i) => {
+      { showDataToggle === true ? ( dailyfeeds1 && dailyfeed2.map((i) => {
           return(
               <div>
             <Card style={localStorage.getItem("darkmode") === "dark"? {position:"relative",background:"#525252" ,color:"white"}: {background:"#F3F3F3"}}>

@@ -16,7 +16,7 @@ import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
-import {Link} from "react-router-dom"
+import {Link,useNavigate} from "react-router-dom"
 import ArrowBackIosIcon from "@material-ui/icons/ArrowBackIos";
 import ArrowForwardIosIcon from "@material-ui/icons/ArrowForwardIos";
 import "./Carousel.css";
@@ -24,6 +24,9 @@ import Grid from '@mui/material/Grid'
 import "./Home.css"
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
+import { Popover } from '@mui/material';
+import { useSelector,useDispatch } from 'react-redux';
+import {showFeed} from '../redux/action'
 //https://coderrocketfuel.com/article/how-to-add-disqus-to-a-react-application
 
 
@@ -63,21 +66,22 @@ const HomePage = () => {
     },
   ];
 
-
+  const history = useNavigate()
+  const dispatch = useDispatch()
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);
-  const [data2, setData2] = useState([])
   const [currImg, setCurrImg] = useState(0);
   const [toggleButton, setToggleButton] = useState(false)
+
+  
   
   useEffect(() => {
-    axios.get(`https://celestial-blog-backend.herokuapp.com/api/dailyfeed`)
-    .then((res) => {
-        console.log("daily feed",res.data);
-        setData2(res.data)
-    })
-
+    dispatch(showFeed())
   }, [])
+  
+  const {dailyfeeds1}= useSelector(state => state.info)
+ 
+   console.log("dailyfeed1",dailyfeeds1)
   
 
 
@@ -91,7 +95,6 @@ const HomePage = () => {
   const handleCloseNavMenu = () => {
     setAnchorElNav(null);
   };
-
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
@@ -106,8 +109,9 @@ const HomePage = () => {
       setToggleButton(false)
     }
   }
-  console.log("Location",window.location.origin)
-   
+  const onHandleDailyFeed = (id) => {
+    history(`/dailyfeed/${id}`)
+  }  
     return (
     <div style ={localStorage.getItem("darkmode") ==="dark" ? {background:"#222121",color:"white"}:null}>
     <AppBar position="static" style={{backgroundImage:"url(https://unsplash.com/photos/Jztmx9yqjBw/download?ixid=MnwxMjA3fDB8MXxhbGx8fHx8fHx8fHwxNjQ0NTU5OTA0&force=true)",backgroundSize: 'cover'}}>
@@ -278,10 +282,12 @@ const HomePage = () => {
       </Container> 
       <Container style={{marginTop:"10px"}}>
         <Grid xs ={12}>
-        { data2 && data2.map((i) => {
+        { dailyfeeds1 && dailyfeeds1.map((i) => {
+          
+     
           return(
             
-            <Card style={localStorage.getItem("darkmode") === "dark"? {background:"#525252" ,color:"white"}: {background:"#F3F3F3"}}>
+            <Card style={localStorage.getItem("darkmode") === "dark"? {background:"#525252" ,color:"white",marginTop:"20px"}: {background:"#F3F3F3"}}>
       <CardMedia
         component="img"
         alt="green iguana"
@@ -303,7 +309,9 @@ const HomePage = () => {
       </CardContent>
       <CardActions>
         <Button style={{background:"#0E1F4B",color:"white"}}>Share</Button>
-        <Button style={{background:"#0E1F4B",color:"white"}}>Learn More</Button>
+        <Button style={{background:"#0E1F4B",color:"white"}} onClick={() => onHandleDailyFeed(i._id)}>Learn More</Button>
+     
+      
       </CardActions>
     </Card>
     

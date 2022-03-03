@@ -3,19 +3,19 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import {Link as A} from '@mui/material';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Container } from '@mui/material';
-import {Link,useNavigate} from 'react-router-dom'
-import axios from 'axios';
-import { makeStyles } from "@material-ui/core/styles";
+import {Link} from 'react-router-dom'
+import { makeStyles } from "@material-ui/core/styles"
+import { postUsersSignUp } from '../redux/action';
+import { useSelector,useDispatch } from 'react-redux';
+
+
 
 const useStyles = makeStyles({
   input: {
@@ -35,72 +35,30 @@ const useStyles = makeStyles({
 });
 
 
-// const theme = createTheme();
+
 
  function SignUpPage() {
-var hello = {};
-const history = useNavigate()
+
+
+const dispatch =  useDispatch()
  const [data1, setData1] = useState({email:"",password:""})
  const [error, seterror] = useState("")
- const [message1, setMessage1] = useState("")
+
  const classes1 = useStyles();
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    // eslint-disable-next-line no-console
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
-  };
+  
   const handleSignUp = (event) => {
-      if(data1.email === "" && data1.password === ""){
-        seterror("Please Fill all field")
+    event.preventDefault(); 
+    if(data1.email === "" && data1.password === ""){
+        seterror("Please Fill all field and password should be greater than 4 character")
+        
       }
       else{
-          if(window.confirm('Signing Up ..........')){
-            event.preventDefault();
-            // if(window.confirm(`Logging in ..........`)){
-           axios.post(`https://celestial-blog-backend.herokuapp.com/api/register-user`,data1)
-           .then((res) => {
-             if(res.data){
-              console.log(res.data)
-              // setMessage(res.data)
-              setMessage1(res.data.message)
-             hello = res.data
-              localStorage.setItem("bloguser id",hello.result._id)
-              localStorage.setItem("bloguser email",hello.result.email)
-              history(`/personal/${localStorage.getItem("bloguser id")}`)
-           }
-           else{
-             return setMessage1("No data Found")
-           }
-            
-             
-           }).catch((error) => {
-            
-
-              if(error.response){
-                console.log("error data",error.response.data)
-                var error1 = error.response.data.error.errors.email.message
-                setMessage1(error1)
-              }
-              else if(error.request){
-                console.log("error request",error.request)
-                setMessage1("Holy crap !!!! server crashed....")
-              }
-              else{
-                alert("Email doesnt exists or internal server error")
-              }
-              
-           
-           })
-         
-             
-              setData1({email:"",password:""})
-          }
+        dispatch(postUsersSignUp(data1))
       }
+      
   }
+  const {errors} = useSelector(state =>  state.info)
+  console.log("error",errors)
   return (
     <div>
       <Grid container component="main" sx={{ height: '100vh' }}>
@@ -138,8 +96,8 @@ const history = useNavigate()
             <Typography component="h3" variant="h5" style={{color:"red"}}>
               {error}
             </Typography>
-            <p>{message1}</p>
-            <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
+            <p style={{color:"red"}}>{errors}</p>
+            <Box component="form" noValidate  sx={{ mt: 1 }}>
               <TextField
                InputProps={localStorage.getItem("darkmode") ==="dark" ?{style:{borderBottom:"1px solid white"},className:classes1.input }:null}
                InputLabelProps={localStorage.getItem("darkmode") ==="dark" ?{ className: classes1.textField1 }:null}
@@ -168,10 +126,7 @@ const history = useNavigate()
                 value={data1.password}
                 onChange={(e) => {setData1({...data1,password:e.target.value})}}
               />
-              {/* <FormControlLabel
-                control={<Checkbox value="remember" color="primary" />}
-                label="Remember me"
-              /> */}
+              
               <Button
                // type="submit"
                 fullWidth
