@@ -1,7 +1,7 @@
 export const GET_USER = "GET_USER";
 export const GET_SINGLE_USER = "GET_SINGLE_USER";
 export const POST_USER_SIGNUP = "POST_USER";
-export const POST_USER_LOGIN = "POST_USER_LOGIN"
+export const POST_USER_LOGIN = "POST_USER_LOGIN";
 export const UPDATE_USER = "UPDATE_USER";
 export const DELETE_USER = "DELETE_USER";
 export const GET_DATA = "GET_DATA";
